@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparateur Photovoltaïque — Analyse des propositions</title>
+<style>
+  :root{
+    --bg:#f2f5f3; --card:#fff; --ink:#1c2b24; --muted:#5f6f66;
+    --green:#0b7a4b; --green-soft:#e3f3ea; --line:#dde5e0;
+    --red:#b3261e; --red-soft:#fbe9e7; --amber:#9a6b00; --amber-soft:#fdf3d7;
+    --blue:#155299; --blue-soft:#e7f0fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  header{background:linear-gradient(120deg,#0b5c3a,#0b7a4b);color:#fff;padding:20px 28px}
+  header h1{margin:0;font-size:21px}
+  header p{margin:4px 0 0;opacity:.85;font-size:13px}
+  nav{display:flex;gap:6px;background:#0a5233;padding:0 28px;flex-wrap:wrap}
+  nav button{background:none;border:none;color:#cfe6da;padding:11px 14px;font-size:14px;cursor:pointer;border-bottom:3px solid transparent;font-weight:600;font-family:inherit}
+  nav button.active{color:#fff;border-color:#7fd8ab}
+  main{max-width:1280px;margin:0 auto;padding:20px 28px 80px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .card h2{margin:0 0 4px;font-size:17px}
+  .card h3{margin:18px 0 8px;font-size:13px;color:var(--green);text-transform:uppercase;letter-spacing:.4px}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:3px}
+  .field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff;color:var(--ink);font-family:inherit}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid rgba(11,122,75,.25);border-color:var(--green)}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  button.btn{background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  button.btn.secondary{background:#fff;color:var(--green);border:1px solid var(--green)}
+  button.btn.ghost{background:#eef3f0;color:var(--ink);border:1px solid var(--line)}
+  button.btn.small{padding:5px 10px;font-size:12px}
+  .pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600}
+  .pill.ok{background:var(--green-soft);color:var(--green)}
+  .pill.warn{background:var(--amber-soft);color:var(--amber)}
+  .pill.bad{background:var(--red-soft);color:var(--red)}
+  .pill.info{background:var(--blue-soft);color:var(--blue)}
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:start}
+  .proplist{display:flex;flex-direction:column;gap:8px;position:sticky;top:12px}
+  .proplist .item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+  .proplist .item.sel{border-color:var(--green);background:var(--green-soft)}
+  .proplist .item b{display:block;font-size:14px}
+  .proplist .item small{color:var(--muted)}
+  .wrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#eef5f1;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;color:var(--muted);min-width:150px}
+  td:first-child,th:first-child{background:#fff;font-weight:600;min-width:200px}
+  .barcell{display:flex;align-items:center;gap:8px}
+  .bar{height:8px;border-radius:5px;background:#e7ece9;overflow:hidden;min-width:90px;flex:1}
+  .bar i{display:block;height:100%;border-radius:5px}
+  .score-now{font-weight:700;font-size:13px}
+  .flag{font-size:12.5px;margin:4px 0}
+  .miss{color:var(--amber);font-weight:600;font-size:12px}
+  .scorebig{font-size:26px;font-weight:800;padding-top:4px}
+  .rank{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .rank .cand{flex:1;min-width:150px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+  .rank .cand.first{border-color:var(--green);background:var(--green-soft)}
+  .rank .cand small{display:block;color:var(--muted)}
+  .qrow{display:grid;grid-template-columns:1fr auto;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);align-items:center}
+  .qrow .qchecks{display:flex;gap:10px;flex-wrap:wrap}
+  .qrow label{font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap}
+  details{margin:10px 0}
+  details summary{cursor:pointer;font-weight:600;color:var(--green)}
+  ul.tight{margin:6px 0;padding-left:20px}
+  ul.tight li{margin:5px 0}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}.proplist{position:static}}
+  @media print{
+    nav,.no-print{display:none!important}
+    body{background:#fff;font-size:12px}
+    header{padding:12px}
+    .card{break-inside:avoid;border:1px solid #ccc;box-shadow:none;padding:10px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>☀️ Comparateur Photovoltaïque — Analyse des propositions</h1>
+  <p>Maison 2022 · 140 m² · plein sud · pente 40° · pompe à chaleur (chauffage + eau chaude) · 2 occupants · batterie prévue plus tard → système évolutif exigé</p>
+</header>
+<nav id="tabs">
+  <button data-tab="profil" class="active">🏠 Mon profil</button>
+  <button data-tab="propositions">📋 Propositions</button>
+  <button data-tab="comparatif">⚖️ Comparatif &amp; scores</button>
+  <button data-tab="questions">❓ Questions à poser</button>
+  <button data-tab="batterie">🔋 Stratégie batterie</button>
+  <button data-tab="parametres">⚙️ Paramètres / données</button>
+</nav>
+<main id="content"></main>
+<script src="app.js"></script>
+</body>
+</html>
