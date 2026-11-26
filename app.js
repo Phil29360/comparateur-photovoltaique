@@ -20,7 +20,7 @@ const DEFAULT_PARAMS = {
   productivite: 1300,
   prixElec: 0.2516,
   rachatSurplus: 0.04,
-  primeUnit: 80,
+  primeUnit: 0,
   tacSansBatterie: 30,
   tacAvecBatterie: 60,
   batterieCible: 5,
@@ -71,7 +71,7 @@ const PROPOSAL_FIELDS = [
   ]},
   { sec: "Administratif & contrats", fields: [
     { k: "demarches", l: "Démarches administratives", t: "select", o: ["", "Tout inclus (CONSUEL, EDF OA, Enedis, mairie)", "Partiellement inclus", "Non inclus"], q: "qui prend en charge : l'attestation CONSUEL, le contrat EDF OA (rachat du surplus + prime), le raccordement Enedis et la déclaration préalable en mairie ?" },
-    { k: "primeChiffree", l: "Prime autoconsommation", t: "select", o: ["", "Chiffrée dans le devis", "Non mentionnée"], q: "la prime à l'autoconsommation est-elle chiffrée dans le devis ? Quel montant, versée par qui, sous quel délai ? Le prix affiché est-il net de prime ?" },
+    { k: "primeChiffree", l: "Régime de revente (EDF OA)", t: "select", o: ["", "Autoconsommation avec vente du surplus (contrat 20 ans chiffré)", "Vente totale", "Non précisé"], q: "la prime à l'autoconsommation a été supprimée par l'arrêté S21 du 1er juin 2026. Le contrat EDF OA prévu est-il bien l'autoconsommation avec vente du surplus, au tarif en vigueur (≈ 4 c€/kWh, garanti 20 ans) ? Merci de chiffrer le tarif d'achat du surplus dans le devis." },
     { k: "tvaTaux", l: "TVA appliquée", t: "select", o: ["", "10 %", "20 %"], q: "quel taux de TVA s'applique, et est-il cohérent avec la puissance installée et l'ancienneté du logement ?" }
   ]},
   { sec: "Batterie & évolutivité", fields: [
@@ -83,6 +83,7 @@ const PROPOSAL_FIELDS = [
     { k: "emplacementBat", l: "Emplacement batterie", t: "select", o: ["", "Réservé + câbles prévus", "Non prévu"], q: "un emplacement et un passage de câbles pour la future batterie sont-ils prévus dès l'installation initiale ?" }
   ]},
   { sec: "Commercial", fields: [
+    { k: "notesSuivi", l: "Suivi des échanges (réponses de l'installateur)", t: "textarea" },
     { k: "acompte", l: "Acompte demandé (€)", t: "number", q: "quel est l'échéancier de paiement (acompte, solde à la livraison) ? Merci de le rendre conforme à la réglementation sur les avances trop élevées." },
     { k: "optionsCachees", l: "Frais non écrits possibles", t: "select", o: ["", "Aucune (confirmé par écrit)", "À creuser"], q: "existe-t-il des frais ou options non écrits au devis (renfort de charpente, ligne supplémentaire, déplacements, remplacement de matériel) ?" }
   ]}
@@ -106,7 +107,7 @@ const QUESTIONS = [
   ["Installation", "Visite technique avant devis : ombres, état de la couverture, emplacement de l'onduleur ?"],
   ["Installation", "Délai ferme d'intervention, durée du chantier, pénalités en cas de retard ?"],
   ["Administratif", "Qui gère CONSUEL, contrat EDF OA (rachat + prime), raccordement Enedis, mairie ?"],
-  ["Administratif", "Prime à l'autoconsommation : montant, versée par qui, sous quel délai ? Prix net de prime ?"],
+  ["Administratif", "Prime supprimée depuis juin 2026 : le devis est-il bien en autoconsommation avec vente du surplus (tarif de rachat chiffré, contrat 20 ans) ?"],
   ["Administratif", "TVA : 10 % ou 20 % ? Cohérente avec la puissance et l'âge du logement ?"],
   ["Administratif", "Échéancier de paiement : acompte, solde à la livraison, conformité réglementaire ?"],
   ["Administratif", "Achat ferme, location ou financement ? Tous les documents fournis avant signature ?"],
@@ -172,7 +173,10 @@ const SEED = {
     "acompte": "3000",
     "optionsCachees": "À creuser",
     "tier1": "Oui",
-    "garProduit": "25"
+    "garProduit": "25",
+    "delai": "10",
+    "emplacementBat": "Non prévu",
+    "notesSuivi": "Réponse de Stéphane THIRIOT (déc. 2025) : délai 8-12 semaines après accord de la Mairie. SAV par salariés. Garanties = décennale + garanties fabricants (durée de garantie de pose non précisée : à redemander par écrit). Prime à l’autoconsommation annoncée supprimée : EXACT depuis juin 2026, mais demander le régime EDF OA (autoconsommation + vente du surplus, tarif 20 ans). Références clients promises. CONTRADICTION à lever : il annonce des MICRO-ONDULEURS alors que le devis prévoit un ONDULEUR HYBRIDE BG 6 kW → demander la configuration exacte (impact garanties et prix). Passage de câbles pour future batterie NON prévu, devisable : faire chiffrer maintenant avec prix ferme 24 mois."
    },
    "checks": {}
   },
@@ -257,7 +261,7 @@ const SEED = {
 };
 
 
-const STORE_KEY = "pv-comparateur-v2";
+const STORE_KEY = "pv-comparateur-v3";
 let state = load();
 let selectedId = state.proposals.length ? state.proposals[0].id : null;
 
@@ -494,7 +498,7 @@ function renderProfil(){
     + '<li><b>Ordres de grandeur</b> : 3 kWc → ~' + p3 + ' kWh/an · 6 kWc → ~' + p6 + ' kWh/an (≈ ' + pct6 + ' % de votre consommation) · 9 kWc → ~' + p9 + ' kWh/an.</li>'
     + '<li><b>Recommandation</b> : pour 2 personnes sans VE ni piscine, la zone 3 à 6 kWc est la plus rationnelle. Au-delà, vous produisez surtout du surplus revendu ≈ ' + (state.params.rachatSurplus * 100).toFixed(1) + ' c€/kWh : rentable, mais moins que l’autoconsommation. Une puissance supérieure ne se justifie vraiment que si un véhicule électrique arrive plus tard — auquel cas exigez justement l’évolutivité.</li>'
     + '<li><b>Batterie</b> : pour 2 personnes, ≈ ' + state.params.batterieCible + ' kWh suffisent. Exigez dès maintenant un <b>onduleur hybride ou la compatibilité batterie AC, par écrit au devis</b> : c’est LE point qui rendra l’ajout facile et bon marché plus tard.</li>'
-    + '<li><b>Aides en jeu</b> : prime à l’autoconsommation (≈ ' + state.params.primeUnit + ' €/kWc jusqu’à 9 kWc, révisée chaque trimestre), rachat du surplus par EDF OA (contrat d’accessibilité), TVA réduite selon la puissance — vérifiez le taux appliqué, ligne par ligne, dans chaque devis.</li>'
+    + '<li><b>Aides en jeu (2026)</b> : la prime à l’autoconsommation est SUPPRIMÉE depuis l’arrêté S21 du 1er juin 2026 (sauf demandes de raccordement déposées avant le 5 juin 2026). Reste : le rachat du surplus par EDF OA (≈ 4 c€/kWh, contrat 20 ans) et la TVA : 10 % si ≤ 3 kWc (logement > 2 ans), et 5,5 % possible jusqu’à 9 kWc SI l’installation inclut un système de pilotage intelligent (EMS). Un devis ≤ 3 kWc en TVA 20 % doit être corrigé.</li>'
     + '</ul></div>';
 }
 
@@ -673,7 +677,7 @@ function renderBatterie(){
 function renderParametres(){
   const p = state.params, w = p.poids;
   return '<div class="card"><h2>⚙️ Hypothèses de calcul</h2>'
-    + '<p class="sub">Ajustez selon votre région (productivité) et les tarifs du trimestre en cours (prime + rachat : arrêtés S21, révisés chaque trimestre — vérifiez sur le site EDF OA au moment de la signature).</p>'
+    + '<p class="sub">Ajustez selon votre région (productivité) et les tarifs en vigueur. La prime à l’autoconsommation est supprimée depuis juin 2026 (champ conservé à 0 par défaut, utile seulement pour les dossiers déposés avant le 5 juin 2026). Le tarif de rachat du surplus (≈ 4 c€/kWh, révisé chaque trimestre, garanti 20 ans) est à vérifier sur le site EDF OA.</p>'
     + '<div class="grid">'
     + fieldHtml("param", "productivite", "Productivité (kWh/kWc/an)", "number", null, p.productivite)
     + fieldHtml("param", "prixElec", "Prix électricité (€/kWh TTC)", "number", null, p.prixElec)
