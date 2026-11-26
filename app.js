@@ -11,13 +11,13 @@ const DEFAULT_PROFILE = {
   occupants: "2",
   ve: "non",
   piscine: "non",
-  consoAnnuelle: "5000",
+  consoAnnuelle: "4000",
   departement: "",
   objectifs: "Autoconsommation, système évolutif (batterie plus tard), pas de sous-traitance"
 };
 
 const DEFAULT_PARAMS = {
-  productivite: 1300,
+  productivite: 1200,
   prixElec: 0.2516,
   rachatSurplus: 0.04,
   primeUnit: 0,
@@ -134,7 +134,7 @@ const SEED = {
   "occupants": "2",
   "ve": "non",
   "piscine": "non",
-  "consoAnnuelle": "5000",
+  "consoAnnuelle": "4000",
   "departement": "29 (Finistère)",
   "objectifs": "Autoconsommation, système évolutif (batterie plus tard), pas de sous-traitance"
  },
@@ -261,7 +261,7 @@ const SEED = {
 };
 
 
-const STORE_KEY = "pv-comparateur-v3";
+const STORE_KEY = "pv-comparateur-v4";
 let state = load();
 let selectedId = state.proposals.length ? state.proposals[0].id : null;
 
@@ -493,7 +493,7 @@ function renderProfil(){
     + '<p class="sub">Base commune à la comparaison de toutes les propositions. Pré-rempli avec votre situation.</p>'
     + '<div class="grid">' + f.map(x => fieldHtml("profile", x[0], x[1], x[2], x[3], prof[x[0]])).join("") + '</div></div>'
     + '<div class="card"><h2>📏 Dimensionnement recommandé pour votre cas</h2><ul class="tight">'
-    + '<li><b>Consommation</b> : valeur par défaut ' + conso + ' kWh/an (maison 2022 très bien isolée, PAC chauffage + eau chaude, 2 personnes, pas de VE ni piscine). <b>Corrigez avec vos relevés Linky réels sur 12 mois</b> : c’est l’entrée la plus importante pour ne pas surdimensionner.</li>'
+    + '<li><b>Consommation</b> : valeur par défaut ' + conso + ' kWh/an — votre consommation réelle : 3 970 kWh (1 086 €). Maison 2022 très bien isolée, PAC chauffage + eau chaude, 2 personnes, pas de VE ni piscine. <b>Corrigez avec vos relevés Linky réels sur 12 mois</b> : c’est l’entrée la plus importante pour ne pas surdimensionner.</li>'
     + '<li><b>Productivité</b> : plein sud + pente 40° est proche de l’optimum en France (≈ ' + prod + ' kWh/kWc/an selon la région ; 30-35° aurait été légèrement mieux, mais rien de dramatique). À affiner dans Paramètres selon votre département.</li>'
     + '<li><b>Ordres de grandeur</b> : 3 kWc → ~' + p3 + ' kWh/an · 6 kWc → ~' + p6 + ' kWh/an (≈ ' + pct6 + ' % de votre consommation) · 9 kWc → ~' + p9 + ' kWh/an.</li>'
     + '<li><b>Recommandation</b> : pour 2 personnes sans VE ni piscine, la zone 3 à 6 kWc est la plus rationnelle. Au-delà, vous produisez surtout du surplus revendu ≈ ' + (state.params.rachatSurplus * 100).toFixed(1) + ' c€/kWh : rentable, mais moins que l’autoconsommation. Une puissance supérieure ne se justifie vraiment que si un véhicule électrique arrive plus tard — auquel cas exigez justement l’évolutivité.</li>'
