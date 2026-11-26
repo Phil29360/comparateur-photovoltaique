@@ -28,10 +28,10 @@ const DEFAULT_PARAMS = {
 };
 
 const PREMIUM_PANELS = ["sunpower","maxeon","winaico","q cells","qcells","meyer burger","rec alpha","ies synergy"];
-const TIER1_PANELS = ["jinko","ja solar","longi","canadian solar","trina","axitec","phono","seraphim","risen","solarwatt","dualsun","viking"];
+const TIER1_PANELS = ["jinko","ja solar","longi","canadian solar","trina","axitec","phono","seraphim","risen","solarwatt","dualsun","viking","tcl solar","dmegc"];
 const PREMIUM_INV = ["solaredge","fronius","sma"];
 const GOOD_INV = ["enphase","huawei","goodwe","hoymiles","apsystems"];
-const MID_INV = ["growatt","solis","saj","deye","solax","sungrow"];
+const MID_INV = ["growatt","solis","saj","deye","solax","sungrow","bourgeois"];
 
 /* Champs d'une proposition ; `q` = question à envoyer à l'installateur si le champ est vide. */
 const PROPOSAL_FIELDS = [
@@ -146,21 +146,21 @@ const SEED = {
     "dateDevis": "19/10/2025",
     "prixTTC": "10000",
     "mode": "Achat",
-    "panneauMarque": "TCL Solar (à confirmer)",
-    "panneauModele": "500 Wc n-type bifacial verre-verre cadre noir",
+    "panneauMarque": "TCL Solar",
+    "panneauModele": "HSM-ND54-DR (n-type, 485-510 W, bifacial verre-verre)",
     "panneauWc": "500",
     "nbPanneaux": "4",
     "garPerfPct": "87.4",
     "garPerfAns": "30",
     "ondType": "Onduleur hybride (prêt pour batterie)",
-    "ondMarque": "Deye (à confirmer)",
-    "ondModele": "Hybride 6 kW mono, 2 MPPT, IP65, secours intégré",
+    "ondMarque": "Bourgeois Global (BG)",
+    "ondModele": "Hybride Aura II 6 kW mono, 2 MPPT, IP65, secours intégré",
     "ondPac": "6",
     "garOnduleur": "10",
     "monitoring": "Application incluse, gratuite",
     "poseInterne": "Salariés de l'entreprise",
     "rge": "Oui + numéro fourni",
-    "assurance": "Sur demande",
+    "assurance": "Attestations jointes au devis",
     "poseType": "Surimposé",
     "fixationMarque": "K2 Systems",
     "demarches": "Tout inclus (CONSUEL, EDF OA, Enedis, mairie)",
@@ -168,9 +168,11 @@ const SEED = {
     "ondHybride": "Onduleur hybride (prêt)",
     "batteriePrevue": "Incluse",
     "batteriePrix": "1188",
-    "batterieKwh": "2",
+    "batterieKwh": "2.048",
     "acompte": "3000",
-    "optionsCachees": "À creuser"
+    "optionsCachees": "À creuser",
+    "tier1": "Oui",
+    "garProduit": "25"
    },
    "checks": {}
   },
@@ -192,8 +194,8 @@ const SEED = {
     "ondModele": "MI-1000-2M (2 MPPT)",
     "garOnduleur": "25",
     "poseInterne": "À préciser",
-    "rge": "Oui",
-    "assurance": "Sur demande",
+    "rge": "Oui + numéro fourni",
+    "assurance": "Attestations jointes au devis",
     "poseType": "Surimposé",
     "fixationMarque": "K2 Systems (SolidRail/MiniRail)",
     "demarches": "Tout inclus (CONSUEL, EDF OA, Enedis, mairie)",
@@ -255,7 +257,7 @@ const SEED = {
 };
 
 
-const STORE_KEY = "pv-comparateur-v1";
+const STORE_KEY = "pv-comparateur-v2";
 let state = load();
 let selectedId = state.proposals.length ? state.proposals[0].id : null;
 
